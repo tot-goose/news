@@ -1,0 +1,5 @@
+title: Мой Блог Новостей
+description: Актуальные новости
+url: https://tot-goose.github.io/news/
+plugins:
+  - jekyll-feed
