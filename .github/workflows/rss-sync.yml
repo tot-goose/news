@@ -1,0 +1,39 @@
+name: Sync RSS Feed
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # каждые 6 часов (настройте под себя)
+  workflow_dispatch:       # для ручного запуска из вкладки Actions
+
+permissions:
+  contents: write          # нужно для git push
+
+jobs:
+  sync-rss:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install feedparser
+
+      - name: Fetch & Process RSS
+        run: python scripts/sync_rss.py
+        env:
+          RSS_URL: "https://www.totgoose.ru/rss-feed-917970506263.xml" # ← замените на ваш RSS
+
+      - name: Commit & Push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add assets/data/news.json
+          git diff --quiet && git diff --staged --quiet && echo "Нет изменений, пропускаем коммит" || {
+            git commit -m "📡 Обновлен RSS-фид [skip ci]"
+            git push
+          }
