@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Новости</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+    .news-item { border-bottom: 1px solid #eee; padding: 1rem 0; }
+    .news-item h3 { margin: 0 0 0.5rem; }
+    .news-item h3 a { text-decoration: none; color: #2563eb; }
+    .news-item time { font-size: 0.85rem; color: #666; }
+    .loading, .error { color: #666; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Последние новости</h1>
+  <div id="news-container"><p class="loading">Загрузка...</p></div>
+
+  <script>
+    const container = document.getElementById('news-container');
+
+    fetch('assets/data/news.json')
+      .then(res => {
+        if (!res.ok) throw new Error('Файл не найден');
+        return res.json();
+      })
+      .then(data => {
+        if (!data.length) {
+          container.innerHTML = '<p>Новостей пока нет.</p>';
+          return;
+        }
+        container.innerHTML = data.map(item => `
+          <article class="news-item">
+            <h3><a href="${item.link}" target="_blank" rel="noopener">${item.title}</a></h3>
+            <time>${item.published}</time>
+            <p>${item.summary}</p>
+          </article>
+        `).join('');
+      })
+      .catch(err => {
+        console.error(err);
+        container.innerHTML = `<p class="error">Не удалось загрузить новости. ${err.message}</p>`;
+      });
+  </script>
+</body>
+</html>
